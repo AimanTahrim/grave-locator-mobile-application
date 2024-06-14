@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/greenwhite_bg"
+    tools:context=".persistentcloudanchor.LoginClient">
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/WelcomeBackLabel"
+            android:layout_marginTop="40dp"
+            android:layout_marginLeft="20dp"
+            android:text="Welcome Back"
+            android:textSize="30sp"
+            android:textStyle="bold"
+            android:textColor="@color/greyYellow"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/GLMALabel"
+            android:layout_marginLeft="20dp"
+            android:text="Grave Locator Mobile Application"
+            android:textSize="16sp"
+            android:textColor="@color/greyYellow"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="20dp"
+            android:padding="20dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/SignInText1"
+                android:text="Sign In"
+                android:textSize="30sp"
+                android:textStyle="bold"
+                android:textColor="@color/darkGreen"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:id="@+id/SignInText2"
+                android:text="Please login to your account."
+                android:textSize="16sp"
+                android:textColor="@color/darkGreen"/>
+
+            <EditText
+                android:layout_width="350dp"
+                android:layout_height="60dp"
+                android:id="@+id/SignInEmail"
+                android:layout_marginTop="20dp"
+                android:layout_gravity="center"
+                android:background="@drawable/green_border"
+                android:padding="8dp"
+                android:hint="Enter Email"
+                android:drawableLeft="@drawable/baseline_email_24"
+                android:drawablePadding="8dp"
+                android:textColor="@color/darkGreen"/>
+
+            <EditText
+                android:layout_width="350dp"
+                android:layout_height="60dp"
+                android:id="@+id/SignInPassword"
+                android:layout_marginTop="20dp"
+                android:layout_gravity="center"
+                android:background="@drawable/green_border"
+                android:padding="8dp"
+                android:hint="Enter Password"
+                android:inputType="textPassword"
+                android:drawableLeft="@drawable/baseline_lock_24"
+                android:drawablePadding="8dp"
+                android:textColor="@color/darkGreen"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:padding="8dp"
+                android:id="@+id/ForgotPasswordRedirectLabel"
+                android:text="Forgot Password?"
+                android:textSize="18sp"
+                android:textColor="@color/darkGreen"
+                android:layout_gravity="end"/>
+
+            <Button
+                android:layout_width="200dp"
+                android:layout_height="50dp"
+                android:layout_marginTop="10dp"
+                android:layout_gravity="center"
+                android:text="Sign In"
+                android:id="@+id/SignInButton"
+                android:textSize="18sp"
+                android:background="@drawable/btn_greenbg"
+                android:textColor="@color/greyYellow"
+                app:cornerRadius="10dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:layout_gravity="center"
+                android:padding="8dp"
+                android:id="@+id/SignUpRedirectText"
+                android:text="Don’t have an account? Sign Up"
+                android:textSize="18sp"
+                android:textColor="@color/darkGreen"/>
+
+
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

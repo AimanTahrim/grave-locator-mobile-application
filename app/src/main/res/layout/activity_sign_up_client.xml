@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/greenwhite_bg"
+    tools:context=".persistentcloudanchor.SignUpClient">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/WelcomeLabel"
+            android:layout_marginTop="40dp"
+            android:layout_marginLeft="20dp"
+            android:text="Welcome"
+            android:textSize="30sp"
+            android:textStyle="bold"
+            android:textColor="@color/greyYellow"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/GLMALabel"
+            android:layout_marginLeft="20dp"
+            android:text="Grave Locator Mobile Application"
+            android:textSize="16sp"
+            android:textColor="@color/greyYellow"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="20dp"
+            android:padding="20dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/GettingStartedText1"
+                android:text="Getting Started"
+                android:textSize="30sp"
+                android:textStyle="bold"
+                android:textColor="@color/darkGreen"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:id="@+id/GettingStartedText2"
+                android:text="Create an account to GLMA to get all features"
+                android:textSize="16sp"
+                android:textColor="@color/darkGreen"/>
+
+            <EditText
+                android:layout_width="350dp"
+                android:layout_height="60dp"
+                android:id="@+id/SignUpName"
+                android:layout_marginTop="20dp"
+                android:layout_gravity="center"
+                android:background="@drawable/green_border"
+                android:padding="8dp"
+                android:hint="Enter Name"
+                android:drawableLeft="@drawable/baseline_email_24"
+                android:drawablePadding="8dp"
+                android:textColor="@color/darkGreen"/>
+
+            <EditText
+                android:layout_width="350dp"
+                android:layout_height="60dp"
+                android:id="@+id/SignUpEmail"
+                android:layout_marginTop="20dp"
+                android:layout_gravity="center"
+                android:background="@drawable/green_border"
+                android:padding="8dp"
+                android:hint="Enter Email"
+                android:drawableLeft="@drawable/baseline_email_24"
+                android:drawablePadding="8dp"
+                android:textColor="@color/darkGreen"/>
+
+            <EditText
+                android:layout_width="350dp"
+                android:layout_height="60dp"
+                android:id="@+id/SignUpPassword"
+                android:layout_marginTop="20dp"
+                android:layout_gravity="center"
+                android:background="@drawable/green_border"
+                android:padding="8dp"
+                android:hint="Enter Password"
+                android:inputType="textPassword"
+                android:drawableLeft="@drawable/baseline_lock_24"
+                android:drawablePadding="8dp"
+                android:textColor="@color/darkGreen"/>
+
+            <EditText
+                android:layout_width="350dp"
+                android:layout_height="60dp"
+                android:id="@+id/SignUpConfirmPassword"
+                android:layout_marginTop="20dp"
+                android:layout_gravity="center"
+                android:background="@drawable/green_border"
+                android:padding="8dp"
+                android:hint="Confirm Password"
+                android:inputType="textPassword"
+                android:drawableLeft="@drawable/baseline_lock_24"
+                android:drawablePadding="8dp"
+                android:textColor="@color/darkGreen"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:layout_gravity="center"
+                android:padding="8dp"
+                android:id="@+id/TermsPolicyLabel"
+                android:text="By signing you agree to our Terms of use and Privacy Policy"
+                android:textSize="18sp"
+                android:textColor="@color/darkGreen"
+                android:textAlignment="center"/>
+
+            <Button
+                android:id="@+id/SignUpButton"
+                android:layout_width="200dp"
+                android:layout_height="50dp"
+                android:layout_gravity="center"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/btn_greenbg"
+                android:text="Sign Up"
+                android:textColor="@color/greyYellow"
+                android:textSize="18sp"
+                app:cornerRadius="10dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:layout_gravity="center"
+                android:padding="8dp"
+                android:id="@+id/LoginRedirectText"
+                android:text="Already have an account? Sign In"
+                android:textSize="18sp"
+                android:textColor="@color/darkGreen"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>

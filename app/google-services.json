@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "146349737417",
+    "project_id": "glma-database-2ba2f",
+    "storage_bucket": "glma-database-2ba2f.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:146349737417:android:38a39a235b48cd3d3f5418",
+        "android_client_info": {
+          "package_name": "com.example.glmaclient.persistentcloudanchor"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAIUNpB14vx8aior16LOAubwwThKeuXzwU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.CAMERA" />
+
+    <uses-feature
+        android:name="android.hardware.camera.ar"
+        android:required="true" />
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.GLMAClient">
+        <activity
+            android:name=".AdminDeleteRequestsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".AdminUpdateReviewActivity"
+            android:exported="false" />
+        <activity
+            android:name=".DeleteDeceasedAdmin"
+            android:exported="false" />
+        <activity
+            android:name=".UpdateDeceasedAdmin"
+            android:exported="false" />
+        <activity
+            android:name=".DeceasedInfo"
+            android:parentActivityName=".ManageDeceasedAdmin" />
+        <activity
+            android:name=".ManageDeceasedAdmin"
+            android:exported="false" />
+        <activity
+            android:name=".AdminReviewActivity"
+            android:exported="false" />
+        <activity
+            android:name=".AddDataAdmin"
+            android:exported="false" />
+        <activity
+            android:name=".ManageAccountAdmin"
+            android:exported="false" />
+        <activity
+            android:name=".ViewFeedbackAdmin"
+            android:exported="false" />
+        <activity
+            android:name=".LoginAdmin"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".SignUpAdmin"
+            android:exported="false" />
+        <activity
+            android:name=".HomePageAdmin"
+            android:exported="false" />
+        <activity
+            android:name=".MainActivity"
+            android:exported="true" />
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyABY1OQI-Yvp_4C1EdiQwzdaZAFak_-eLs" />
+    </application>
+
+</manifest>
