@@ -10,7 +10,7 @@ Table of Contents
 7. Acknowledgements
 
 1.Introduction
-The Grave Locator Mobile Application is designed to address the challenges of locating graves in cemeteries. It leverages augmented reality (AR) technology to provide users with a precise and efficient way to find graves, enhancing the experience of visiting cemeteries and reducing emotional stress.
+- The Grave Locator Mobile Application is designed to address the challenges of locating graves in cemeteries. It leverages augmented reality (AR) technology to provide users with a precise and efficient way to find graves, enhancing the experience of visiting cemeteries and reducing emotional stress.
 
 2.Features
 - Registration and Login: Secure user authentication system.
