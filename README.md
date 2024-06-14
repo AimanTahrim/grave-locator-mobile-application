@@ -13,11 +13,11 @@ Table of Contents
 The Grave Locator Mobile Application is designed to address the challenges of locating graves in cemeteries. It leverages augmented reality (AR) technology to provide users with a precise and efficient way to find graves, enhancing the experience of visiting cemeteries and reducing emotional stress.
 
 2.Features
-Registration and Login: Secure user authentication system.
-Manage Deceased Data: Allows users and administrators to add, update, and manage data related to the deceased.
-Augmented Reality Navigation: Guides users to the exact location of graves using AR technology.
-User Profiles: Manage user information and preferences.
-Feedback System: Users can provide feedback on the accuracy and functionality of grave locations.
+- Registration and Login: Secure user authentication system.
+- Manage Deceased Data: Allows users and administrators to add, update, and manage data related to the deceased.
+- Augmented Reality Navigation: Guides users to the exact location of graves using AR technology.
+- User Profiles: Manage user information and preferences.
+- Feedback System: Users can provide feedback on the accuracy and functionality of grave locations.
 
 3.Modules
 The application consists of two main modules:
@@ -45,12 +45,12 @@ Steps
 	- git clone https://github.com/AimanTahrim/grave-locator-mobile-application.git
 
 	2.Navigate to the Project Directory:
-	- cd grave-locator
+	- cd grave-locator-mobile-application
 
 	3.Open the Project in Android Studio:
 	- Launch Android Studio.
 	- Select "Open an existing Android Studio project".
-	- Navigate to the grave-locator directory and open it.
+	- Navigate to the grave-locator-mobile-application directory and open it.
 
 	4.Configure Firebase:
 	- Set up Firebase Authentication, Realtime Database, and Storage in your Firebase console.
