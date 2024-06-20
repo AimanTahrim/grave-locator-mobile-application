@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/greenwhite_bg"
-    tools:context=".persistentcloudanchor.SignUpClient">
+    tools:context=".SignUpClient">
 
     <LinearLayout
         android:layout_width="match_parent"

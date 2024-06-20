@@ -23,20 +23,19 @@ class AdminDeleteRequestsActivity : AppCompatActivity() {
         adapter = DeleteRequestsAdapter(this, deleteRequests)
         deleteRequestsListView.adapter = adapter
 
-        database = FirebaseDatabase.getInstance().getReference("deleteRequests")
+        database = FirebaseDatabase.getInstance().getReference("delete_pending")
 
         fetchPendingDeleteRequests()
     }
 
     private fun fetchPendingDeleteRequests() {
-        database.orderByChild("status").equalTo("pending")
+        database.orderByChild("status").equalTo("pending_delete")
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     deleteRequests.clear()
                     for (requestSnapshot in snapshot.children) {
                         val request = requestSnapshot.getValue(DeleteRequest::class.java)
                         if (request != null) {
-                            request.id = requestSnapshot.key
                             deleteRequests.add(request)
                         } else {
                             Log.e("DataError", "Request is null")
@@ -53,24 +52,25 @@ class AdminDeleteRequestsActivity : AppCompatActivity() {
             })
     }
 
-
     fun handleDeleteRequest(position: Int, isApproved: Boolean) {
         if (position >= 0) {
             val selectedRequest = deleteRequests[position]
-            val requestRef = database.child(selectedRequest.id ?: return)
+            val requestRef = database.child(selectedRequest.deceasedId ?: return)
             requestRef.child("status").setValue(if (isApproved) "approved" else "rejected")
                 .addOnSuccessListener {
                     if (isApproved) {
                         // Perform the actual delete operation
-                        val deceasedRef = FirebaseDatabase.getInstance().getReference("deceased").child(selectedRequest.deceasedId ?: return@addOnSuccessListener)
+                        val deceasedRef = FirebaseDatabase.getInstance().getReference("grave").child(selectedRequest.deceasedId ?: return@addOnSuccessListener)
                         deceasedRef.removeValue()
                             .addOnSuccessListener {
+                                requestRef.removeValue()
                                 Toast.makeText(this, "Deceased record deleted", Toast.LENGTH_SHORT).show()
                             }
                             .addOnFailureListener {
                                 Toast.makeText(this, "Failed to delete deceased record", Toast.LENGTH_SHORT).show()
                             }
                     } else {
+                        requestRef.removeValue()
                         Toast.makeText(this, "Delete request rejected", Toast.LENGTH_SHORT).show()
                     }
                     fetchPendingDeleteRequests()

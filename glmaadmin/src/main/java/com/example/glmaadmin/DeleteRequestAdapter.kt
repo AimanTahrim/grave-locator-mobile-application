@@ -10,7 +10,6 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import com.bumptech.glide.Glide
-import java.util.ArrayList
 
 class DeleteRequestsAdapter(
     private val activity: AdminDeleteRequestsActivity,
@@ -68,4 +67,3 @@ class DeleteRequestsAdapter(
         return rowView
     }
 }
-

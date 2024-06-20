@@ -55,10 +55,8 @@ class UpdatePendingListAdapter(private val context: Context, private val dataLis
     }
 
     private fun approveUpdate(data: DataModel) {
-        // Ensure data.id is not null
         val id = data.deceasedId ?: return
 
-        // Create a map with only the fields expected by the client module
         val approvedData = mapOf(
             "deceasedName" to data.deceasedName,
             "birthDate" to data.birthDate,
@@ -69,8 +67,7 @@ class UpdatePendingListAdapter(private val context: Context, private val dataLis
 
         Log.d("UpdatePendingListAdapter", "Approving update for ID: $id with data: $approvedData")
 
-        // Update the approved data and remove from updatepending
-        databaseReference.child("approved").child(id).updateChildren(approvedData).addOnCompleteListener { task ->
+        databaseReference.child("grave").child(id).updateChildren(approvedData).addOnCompleteListener { task ->
             if (task.isSuccessful) {
                 databaseReference.child("updatepending").child(id).removeValue().addOnCompleteListener { removeTask ->
                     if (removeTask.isSuccessful) {
@@ -88,7 +85,6 @@ class UpdatePendingListAdapter(private val context: Context, private val dataLis
     }
 
     private fun rejectUpdate(data: DataModel) {
-        // Ensure data.id is not null
         val id = data.deceasedId ?: return
 
         Log.d("UpdatePendingListAdapter", "Rejecting update for ID: $id")

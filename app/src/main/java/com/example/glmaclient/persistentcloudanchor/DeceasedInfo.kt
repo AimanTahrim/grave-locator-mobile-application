@@ -48,56 +48,6 @@ class DeceasedInfo : AppCompatActivity() {
             val intent = Intent(this, NavigationAr::class.java)
             startActivity(intent)
         }
-
-        val btndelete: ImageView = findViewById(R.id.btndelete)
-        btndelete.setOnClickListener {
-            showDeleteConfirmationDialog(deceasedId)
-        }
     }
 
-    private fun showDeleteConfirmationDialog(deceasedId: String) {
-        val builder = AlertDialog.Builder(this)
-        builder.setTitle("Confirm Delete")
-        builder.setMessage("Are you sure you want to submit a delete request for this record?")
-
-        builder.setPositiveButton("Yes") { dialogInterface: DialogInterface, _: Int ->
-            dialogInterface.dismiss()
-            requestDelete(deceasedId)
-        }
-
-        builder.setNegativeButton("No") { dialogInterface: DialogInterface, _: Int ->
-            dialogInterface.dismiss()
-        }
-
-        val alertDialog: AlertDialog = builder.create()
-        alertDialog.show()
-    }
-
-    private fun requestDelete(deceasedId: String) {
-        val currentUser = FirebaseAuth.getInstance().currentUser
-        if (currentUser != null) {
-            val deleteRequestRef = FirebaseDatabase.getInstance().getReference("deleteRequests")
-            val requestId = deleteRequestRef.push().key ?: return
-            val deleteRequest = DeleteRequest(
-                id = requestId,
-                deceasedId = deceasedId,
-                deceasedName = findViewById<TextView>(R.id.deceasedNameList).text.toString(),
-                birthDate = findViewById<TextView>(R.id.birthDateList).text.toString(),
-                deathDate = findViewById<TextView>(R.id.deathDateList).text.toString(),
-                lotNumber = findViewById<TextView>(R.id.lotNumberList).text.toString(),
-                lotPhoto = intent.getStringExtra("lotPhoto") ?: "", // Ensure lotPhoto is passed correctly
-                requestedBy = currentUser.uid,
-                status = "pending"
-            )
-            deleteRequestRef.child(requestId).setValue(deleteRequest)
-                .addOnSuccessListener {
-                    Toast.makeText(this, "Delete request submitted", Toast.LENGTH_SHORT).show()
-                }
-                .addOnFailureListener {
-                    Toast.makeText(this, "Failed to submit delete request", Toast.LENGTH_SHORT).show()
-                }
-        } else {
-            Toast.makeText(this, "User not logged in", Toast.LENGTH_SHORT).show()
-        }
-    }
 }

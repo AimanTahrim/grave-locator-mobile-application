@@ -45,10 +45,14 @@ import com.google.ar.core.exceptions.UnavailableApkTooOldException;
 import com.google.ar.core.exceptions.UnavailableArcoreNotInstalledException;
 import com.google.ar.core.exceptions.UnavailableSdkTooOldException;
 import com.google.common.base.Preconditions;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import javax.microedition.khronos.egl.EGLConfig;
@@ -68,6 +72,7 @@ public class CloudAnchorActivity extends AppCompatActivity implements GLSurfaceV
     protected static final String HOSTED_ANCHOR_MINUTES = "anchor_minutes";
     protected static final double MIN_DISTANCE = 0.2f;
     protected static final double MAX_DISTANCE = 10.0f;
+
 
     public static Intent newHostingIntent(Context packageContext) {
         Intent intent = new Intent(packageContext, CloudAnchorActivity.class);
@@ -111,8 +116,8 @@ public class CloudAnchorActivity extends AppCompatActivity implements GLSurfaceV
     private GestureDetector gestureDetector;
     private DisplayRotationHelper displayRotationHelper;
     private final TrackingStateHelper trackingStateHelper = new TrackingStateHelper(this);
-    private TextView debugText;
-    private TextView userMessageText;
+    private static TextView debugText;
+    private static TextView userMessageText;
     private SharedPreferences sharedPreferences;
 
     // Feature Map Quality Indicator UI
@@ -139,17 +144,21 @@ public class CloudAnchorActivity extends AppCompatActivity implements GLSurfaceV
     private CloudAnchorManager cloudAnchorManager;
     private HostResolveMode currentMode;
 
-    private static void saveAnchorToStorage(
-            String anchorId, String anchorNickname, SharedPreferences anchorPreferences) {
-        String hostedAnchorIds = anchorPreferences.getString(HOSTED_ANCHOR_IDS, "");
-        String hostedAnchorNames = anchorPreferences.getString(HOSTED_ANCHOR_NAMES, "");
-        String hostedAnchorMinutes = anchorPreferences.getString(HOSTED_ANCHOR_MINUTES, "");
-        hostedAnchorIds += anchorId + ";";
-        hostedAnchorNames += anchorNickname + ";";
-        hostedAnchorMinutes += TimeUnit.MILLISECONDS.toMinutes(System.currentTimeMillis()) + ";";
-        anchorPreferences.edit().putString(HOSTED_ANCHOR_IDS, hostedAnchorIds).apply();
-        anchorPreferences.edit().putString(HOSTED_ANCHOR_NAMES, hostedAnchorNames).apply();
-        anchorPreferences.edit().putString(HOSTED_ANCHOR_MINUTES, hostedAnchorMinutes).apply();
+    private void saveAnchorToFirebaseDatabase(String anchorId, String anchorNickname) {
+        // Initialize Firebase Realtime Database
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference myRef = database.getReference("anchors").child(anchorId);
+
+        // Prepare the data to be saved
+        Map<String, Object> anchorData = new HashMap<>();
+        anchorData.put("anchorId", anchorId);
+        anchorData.put("anchorNickname", anchorNickname);
+        anchorData.put("timestamp", System.currentTimeMillis());
+
+        // Save the data to Firebase Realtime Database
+        myRef.setValue(anchorData)
+                .addOnSuccessListener(aVoid -> Log.d(TAG, "Anchor successfully written to Firebase!"))
+                .addOnFailureListener(e -> Log.w(TAG, "Error writing anchor to Firebase", e));
     }
 
     private static int getNumStoredAnchors(SharedPreferences anchorPreferences) {
@@ -227,10 +236,6 @@ public class CloudAnchorActivity extends AppCompatActivity implements GLSurfaceV
     @Override
     protected void onDestroy() {
         if (session != null) {
-            // Explicitly close ARCore Session to release native resources.
-            // Review the API reference for important considerations before calling close() in apps with
-            // more complicated lifecycle requirements:
-            // https://developers.google.com/ar/reference/java/arcore/reference/com/google/ar/core/Session#close()
             session.close();
             session = null;
         }
@@ -531,15 +536,8 @@ public class CloudAnchorActivity extends AppCompatActivity implements GLSurfaceV
         long now = SystemClock.uptimeMillis();
         // Call estimateFeatureMapQualityForHosting() every 500ms.
         if (now - lastEstimateTimestampMillis > 500
-                // featureMapQualityUi.updateQualityForViewpoint() calculates the angle (and intersected
-                // quality bar) using the vector going from the phone to the anchor. If the person is
-                // looking away from the anchor and we would incorrectly update the intersected angle with
-                // the FeatureMapQuality from their current view. So we check isAnchorInView() here.
                 && FeatureMapQualityUi.isAnchorInView(anchorTranslation, viewMatrix, projectionMatrix)) {
             lastEstimateTimestampMillis = now;
-            // Update the FeatureMapQuality for the current camera viewpoint. Can pass in ANY valid camera
-            // pose to estimateFeatureMapQualityForHosting(). Ideally, the pose should represent users’
-            // expected perspectives.
             Session.FeatureMapQuality currentQuality =
                     session.estimateFeatureMapQualityForHosting(camera.getPose());
             featureMapQualityUi.updateQualityForViewpoint(cameraUiFrame, currentQuality);
@@ -551,7 +549,7 @@ public class CloudAnchorActivity extends AppCompatActivity implements GLSurfaceV
                 Log.i(TAG, "FeatureMapQuality has reached SUFFICIENT-GOOD, triggering hostCloudAnchor()");
                 synchronized (anchorLock) {
                     hostedAnchor = true;
-                    cloudAnchorManager.hostCloudAnchor(anchor, new HostListener());
+                    cloudAnchorManager.hostCloudAnchor(anchor, new HostListener(), 100);
                 }
                 runOnUiThread(
                         () -> {
@@ -591,35 +589,55 @@ public class CloudAnchorActivity extends AppCompatActivity implements GLSurfaceV
     }
 
     /** Callback function invoked when the privacy notice is accepted. */
+
     private void onPrivacyAcceptedForHost() {
-        if (!sharedPreferences.edit().putBoolean(ALLOW_SHARE_IMAGES_KEY, true).commit()) {
-            throw new AssertionError("Could not save the user preference to SharedPreferences!");
-        }
-        createSession();
-        debugText.setText(R.string.debug_hosting_place_anchor);
-        userMessageText.setText(R.string.hosting_place_anchor);
+        // Save user preference to Firebase Realtime Database instead of SharedPreferences
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference myRef = database.getReference("userPreferences").child("ALLOW_SHARE_IMAGES_KEY");
+
+        myRef.setValue(true)
+                .addOnSuccessListener(aVoid -> {
+                    createSession();
+                    debugText.setText(R.string.debug_hosting_place_anchor);
+                    userMessageText.setText(R.string.hosting_place_anchor);
+                })
+                .addOnFailureListener(e -> {
+                    throw new AssertionError("Could not save the user preference to Firebase Realtime Database!", e);
+                });
     }
 
     private void onPrivacyAcceptedForResolve() {
-        if (!sharedPreferences.edit().putBoolean(ALLOW_SHARE_IMAGES_KEY, true).commit()) {
-            throw new AssertionError("Could not save the user preference to SharedPreferences!");
-        }
-        createSession();
-        ResolveListener resolveListener = new ResolveListener();
-        synchronized (anchorLock) {
-            unresolvedAnchorIds = getIntent().getStringArrayListExtra(EXTRA_ANCHORS_TO_RESOLVE);
-            debugText.setText(getString(R.string.debug_resolving_processing, unresolvedAnchorIds.size()));
-            // Encourage the user to look at a previously mapped area.
-            userMessageText.setText(R.string.resolving_processing);
-            Log.i(
-                    TAG,
-                    String.format(
-                            "Attempting to resolve %d anchor(s): %s",
-                            unresolvedAnchorIds.size(), unresolvedAnchorIds));
-            for (String cloudAnchorId : unresolvedAnchorIds) {
-                cloudAnchorManager.resolveCloudAnchor(cloudAnchorId, resolveListener);
-            }
-        }
+        // Save user preference to Firebase Realtime Database instead of SharedPreferences
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference myRef = database.getReference("userPreferences").child("ALLOW_SHARE_IMAGES_KEY");
+
+        myRef.setValue(true)
+                .addOnSuccessListener(aVoid -> {
+                    createSession();
+                    ResolveListener resolveListener = new ResolveListener();
+                    synchronized (anchorLock) {
+                        unresolvedAnchorIds = getIntent().getStringArrayListExtra(EXTRA_ANCHORS_TO_RESOLVE);
+                        debugText.setText(getString(R.string.debug_resolving_processing, unresolvedAnchorIds.size()));
+                        userMessageText.setText(R.string.resolving_processing);
+                        Log.i(
+                                TAG,
+                                String.format(
+                                        "Attempting to resolve %d anchor(s): %s",
+                                        unresolvedAnchorIds.size(), unresolvedAnchorIds)
+                        );
+                        for (String cloudAnchorId : unresolvedAnchorIds) {
+                            cloudAnchorManager.resolveCloudAnchor(cloudAnchorId, resolveListener);
+                        }
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    throw new AssertionError("Could not save the user preference to Firebase Realtime Database!", e);
+                });
+    }
+
+    private void hostAnchor(Anchor anchor, int ttlDays) {
+        HostListener hostListener = new HostListener();
+        cloudAnchorManager.hostCloudAnchor(anchor, hostListener, ttlDays); // Hosting the anchor with the specified TTL
     }
 
     /* Listens for a resolved anchor. */
@@ -627,7 +645,7 @@ public class CloudAnchorActivity extends AppCompatActivity implements GLSurfaceV
         @Override
         public void onComplete(String cloudAnchorId, Anchor anchor, Anchor.CloudAnchorState state) {
             if (state.isError()) {
-                Log.e(TAG, "Error hosting a cloud anchor, state " + state);
+                Log.e(TAG, "Error resolving a cloud anchor, state " + state);
                 userMessageText.setText(getString(R.string.resolving_error, state));
                 return;
             }
@@ -637,20 +655,15 @@ public class CloudAnchorActivity extends AppCompatActivity implements GLSurfaceV
                 if (unresolvedAnchorIds.isEmpty()) {
                     debugText.setText(getString(R.string.debug_resolving_success));
                 } else {
-                    Log.i(
-                            TAG,
-                            String.format(
-                                    "Attempting to resolve %d anchor(s): %s",
-                                    unresolvedAnchorIds.size(), unresolvedAnchorIds));
-                    debugText.setText(
-                            getString(R.string.debug_resolving_processing, unresolvedAnchorIds.size()));
+                    Log.i(TAG, String.format("Attempting to resolve %d anchor(s): %s", unresolvedAnchorIds.size(), unresolvedAnchorIds));
+                    debugText.setText(getString(R.string.debug_resolving_processing, unresolvedAnchorIds.size()));
                 }
             }
         }
     }
 
     /* Listens for a hosted anchor. */
-    private final class HostListener implements CloudAnchorManager.CloudAnchorHostListener {
+    public final class HostListener implements CloudAnchorManager.CloudAnchorHostListener {
         private String cloudAnchorId;
 
         @Override
@@ -660,8 +673,7 @@ public class CloudAnchorActivity extends AppCompatActivity implements GLSurfaceV
                 userMessageText.setText(getString(R.string.hosting_error, state));
                 return;
             }
-            Preconditions.checkState(
-                    cloudAnchorId == null, "The cloud anchor ID cannot have been set before.");
+            Preconditions.checkState(cloudAnchorId == null, "The cloud anchor ID cannot have been set before.");
             cloudAnchorId = cloudId;
             Log.i(TAG, "Anchor " + cloudAnchorId + " created.");
             userMessageText.setText(getString(R.string.hosting_success));
@@ -669,9 +681,8 @@ public class CloudAnchorActivity extends AppCompatActivity implements GLSurfaceV
             saveAnchorWithNickname();
         }
 
-        /** Callback function invoked when the user presses the OK button in the Save Anchor Dialog. */
         private void onAnchorNameEntered(String anchorNickname) {
-            saveAnchorToStorage(cloudAnchorId, anchorNickname, sharedPreferences);
+            saveAnchorToFirebaseDatabase(cloudAnchorId, anchorNickname); // Updated to use Firebase
             userMessageText.setVisibility(View.GONE);
             debugText.setText(getString(R.string.debug_hosting_success, cloudAnchorId));
             Intent sendIntent = new Intent();
@@ -687,15 +698,14 @@ public class CloudAnchorActivity extends AppCompatActivity implements GLSurfaceV
                 return;
             }
             HostDialogFragment hostDialogFragment = new HostDialogFragment();
-            // Supply num input as an argument.
             Bundle args = new Bundle();
-            args.putString(
-                    "nickname", getString(R.string.nickname_default, getNumStoredAnchors(sharedPreferences)));
+            args.putString("nickname", getString(R.string.nickname_default, getNumStoredAnchors(sharedPreferences)));
             hostDialogFragment.setOkListener(this::onAnchorNameEntered);
             hostDialogFragment.setArguments(args);
             hostDialogFragment.show(getSupportFragmentManager(), "HostDialog");
         }
     }
+
 
     public void showNoticeDialog(PrivacyNoticeDialogFragment.HostResolveListener listener) {
         DialogFragment dialog = PrivacyNoticeDialogFragment.createDialog(listener);

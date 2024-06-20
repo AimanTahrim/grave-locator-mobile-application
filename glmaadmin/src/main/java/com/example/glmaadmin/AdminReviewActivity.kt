@@ -25,7 +25,7 @@ class AdminReviewActivity : AppCompatActivity() {
         }
 
         listView = findViewById(R.id.pendingListView)
-        databaseReference = FirebaseDatabase.getInstance().reference.child("pending")
+        databaseReference = FirebaseDatabase.getInstance().reference.child("add_pending")
         pendingList = mutableListOf()
 
         databaseReference.addValueEventListener(object : ValueEventListener {

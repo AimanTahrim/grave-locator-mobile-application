@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/greenwhite_bg"
-    tools:context=".persistentcloudanchor.DeceasedInfo">
+    tools:context=".DeceasedInfo">
 
     <LinearLayout
         android:id="@+id/topbar"
@@ -29,14 +29,6 @@
             android:textColor="@color/white"
             android:textSize="20sp"
             android:textStyle="bold" />
-
-        <ImageView
-            android:id="@+id/btndelete"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:src="@drawable/ic_delete2"
-            android:layout_marginStart="120dp"
-            tools:ignore="ContentDescription" />
     </LinearLayout>
 
     <ScrollView

@@ -36,6 +36,7 @@ class MyAdapter(private var userList: ArrayList<Model>, private val context: Con
 
         holder.itemView.setOnClickListener{
             val intent = Intent(context, DeceasedInfo::class.java).apply {
+                putExtra("deceasedId", currentItem.deceasedId)
                 putExtra("deceasedName", currentItem.deceasedName)
                 putExtra("birthDate", currentItem.birthDate)
                 putExtra("deathDate", currentItem.deathDate)

@@ -1,6 +1,6 @@
 package com.example.glmaclient.persistentcloudanchor;
-
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,7 +10,11 @@ import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 
-import com.example.glmaclient.persistentcloudanchor.R;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.List;
 
@@ -28,6 +32,7 @@ public class MultiSelectItem extends ArrayAdapter<AnchorItem> {
         this.anchorsList = objects;
         this.spinner = spinner;
         layoutInflater = LayoutInflater.from(context);
+        fetchAnchorsFromFirebase();  // Fetch anchors from Firebase when the adapter is created
     }
 
     // Adjust for the blank initial selection item.
@@ -56,11 +61,10 @@ public class MultiSelectItem extends ArrayAdapter<AnchorItem> {
         final ViewHolder viewHolder;
         if (convertView == null) {
             viewHolder = new ViewHolder();
-            layoutInflater =
-                    (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            layoutInflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             convertView = layoutInflater.inflate(R.layout.anchor_item, null, false);
-            viewHolder.anchorName = (TextView) convertView.findViewById(R.id.anchor_name);
-            viewHolder.creationTime = (TextView) convertView.findViewById(R.id.creation_time);
+            viewHolder.anchorName = convertView.findViewById(R.id.anchor_name);
+            viewHolder.creationTime = convertView.findViewById(R.id.creation_time);
             convertView.setTag(viewHolder);
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
@@ -69,7 +73,7 @@ public class MultiSelectItem extends ArrayAdapter<AnchorItem> {
         String text;
         int anchorPosition = position - 1;
         if (position == 0) {
-            viewHolder.anchorName.setText("    Select Anchors");
+            viewHolder.anchorName.setText("    Select Lot Number");
             viewHolder.creationTime.setText("");
         } else {
             if (anchorsList.get(anchorPosition).isSelected()) {
@@ -92,5 +96,34 @@ public class MultiSelectItem extends ArrayAdapter<AnchorItem> {
                     });
         }
         return convertView;
+    }
+
+    // Method to fetch anchors from Firebase Realtime Database
+    private void fetchAnchorsFromFirebase() {
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference myRef = database.getReference("anchors");
+
+        myRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                anchorsList.clear();  // Clear current list
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    String anchorId = snapshot.child("anchorId").getValue(String.class);
+                    String anchorNickname = snapshot.child("anchorNickname").getValue(String.class);
+                    long timestamp = snapshot.child("timestamp").getValue(Long.class);
+                    long minutesSinceCreation = (System.currentTimeMillis() - timestamp) / (1000 * 60);
+
+                    AnchorItem anchorItem = new AnchorItem(anchorId, anchorNickname, minutesSinceCreation);
+                    anchorsList.add(anchorItem);
+                }
+                notifyDataSetChanged();  // Notify adapter that the data has changed
+            }
+
+            @Override
+            public void onCancelled(DatabaseError error) {
+                // Failed to read value
+                Log.w(TAG, "Failed to read value.", error.toException());
+            }
+        });
     }
 }

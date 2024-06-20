@@ -62,7 +62,7 @@ class ManageDeceasedAdmin : AppCompatActivity() {
     }
 
     private fun getUserData() {
-        databaseReference = FirebaseDatabase.getInstance().getReference("Deceased")
+        databaseReference = FirebaseDatabase.getInstance().getReference("grave")
 
         databaseReference.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {

@@ -67,10 +67,10 @@ class PendingListAdapter(private val context: Context, private val dataList: Lis
             "status" to "approved"
         )
 
-        val approvedRef = databaseReference.child("Deceased").push()
+        val approvedRef = databaseReference.child("grave").child(id)
         approvedRef.setValue(approvedData).addOnCompleteListener { task ->
             if (task.isSuccessful) {
-                databaseReference.child("pending").child(id).removeValue().addOnCompleteListener { removeTask ->
+                databaseReference.child("add_pending").child(id).removeValue().addOnCompleteListener { removeTask ->
                     if (removeTask.isSuccessful) {
                         Toast.makeText(context, "Data approved", Toast.LENGTH_SHORT).show()
                         val intent = Intent(context, ManageDeceasedAdmin::class.java)
@@ -89,7 +89,7 @@ class PendingListAdapter(private val context: Context, private val dataList: Lis
         // Ensure data.id is not null
         val id = data.deceasedId ?: return
 
-        databaseReference.child("pending").child(id).removeValue().addOnCompleteListener { task ->
+        databaseReference.child("add_pending").child(id).removeValue().addOnCompleteListener { task ->
             if (task.isSuccessful) {
                 Toast.makeText(context, "Data rejected", Toast.LENGTH_SHORT).show()
                 val intent = Intent(context, ManageDeceasedAdmin::class.java)

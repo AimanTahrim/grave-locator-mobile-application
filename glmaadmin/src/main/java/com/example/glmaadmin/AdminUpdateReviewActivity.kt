@@ -3,7 +3,6 @@ package com.example.glmaadmin
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.widget.ImageView
 import android.widget.ListView
 import android.widget.Toast
@@ -35,17 +34,9 @@ class AdminUpdateReviewActivity : AppCompatActivity() {
             override fun onDataChange(snapshot: DataSnapshot) {
                 updatePendingList.clear()
                 for (dataSnapshot in snapshot.children) {
-                    // Log the data being retrieved
-                    Log.d("AdminUpdateReview", "DataSnapshot: ${dataSnapshot.value}")
-
-                    if (dataSnapshot.value is Map<*, *>) {
-                        val data = dataSnapshot.getValue(DataModel::class.java)
-                        data?.let { updatePendingList.add(it) }
-                    } else {
-                        Log.e("AdminUpdateReview", "Invalid data format: ${dataSnapshot.value}")
-                    }
+                    val data = dataSnapshot.getValue(DataModel::class.java)
+                    data?.let { updatePendingList.add(it) }
                 }
-                Log.d("AdminUpdateReview", "Updated List: $updatePendingList")
                 val adapter = UpdatePendingListAdapter(this@AdminUpdateReviewActivity, updatePendingList)
                 listView.adapter = adapter
             }
@@ -54,6 +45,5 @@ class AdminUpdateReviewActivity : AppCompatActivity() {
                 Toast.makeText(this@AdminUpdateReviewActivity, "Failed to load data", Toast.LENGTH_SHORT).show()
             }
         })
-
     }
 }

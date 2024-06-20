@@ -137,7 +137,7 @@ class AddDataClient : AppCompatActivity() {
     }
 
     private fun checkIfLotNumberExists(deceasedNameClient: String, birthDateClient: String, deathDateClient: String, lotNumberClient: String) {
-        val approvedReference = FirebaseDatabase.getInstance().getReference("approved")
+        val approvedReference = FirebaseDatabase.getInstance().getReference("grave")
         approvedReference.orderByChild("lotNumber").equalTo(lotNumberClient)
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
@@ -231,7 +231,7 @@ class AddDataClient : AppCompatActivity() {
 
     private fun uploadImageToStorage(deceasedNameClient: String, birthDateClient: String, deathDateClient: String, lotNumberClient: String, imageUri: Uri) {
         val storageRef = storage.reference
-        val imagesRef = storageRef.child("images")
+        val imagesRef = storageRef.child("grave_images")
         val imageFileName = "${System.currentTimeMillis()}.jpg"
         val imageFileRef = imagesRef.child(imageFileName)
         val uploadTask = imageFileRef.putFile(imageUri)
@@ -259,11 +259,11 @@ class AddDataClient : AppCompatActivity() {
             return
         }
 
-        // Generate a unique deceasedId
-        val deceasedId = UUID.randomUUID().toString()
+        // Generate a unique ID for the grave entry
+        val uniqueId = databaseReference.child("add_pending").push().key ?: ""
 
         val data = mapOf(
-            "deceasedId" to deceasedId,  // Add deceasedId to the data
+            "deceasedId" to uniqueId,  // Use unique ID as deceasedId
             "deceasedName" to deceasedNameClient,
             "birthDate" to birthDateClient,
             "deathDate" to deathDateClient,
@@ -275,7 +275,7 @@ class AddDataClient : AppCompatActivity() {
 
         Log.d("AddDataClient", "Saving data to Realtime Database: userId=$userId, data=$data")
 
-        databaseReference.child("pending").push()
+        databaseReference.child("add_pending").child(uniqueId)
             .setValue(data)
             .addOnSuccessListener {
                 progressDialog.dismiss()
@@ -290,4 +290,5 @@ class AddDataClient : AppCompatActivity() {
                 e.printStackTrace()
             }
     }
+
 }

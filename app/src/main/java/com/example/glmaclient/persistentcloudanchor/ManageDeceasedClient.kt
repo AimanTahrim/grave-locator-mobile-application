@@ -23,7 +23,6 @@ class ManageDeceasedClient : AppCompatActivity() {
     private lateinit var userArrayList: ArrayList<Model>
     private lateinit var firebaseAuth: FirebaseAuth
     private lateinit var mAdapter: MyAdapter
-
     private lateinit var mSearchText: EditText
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -72,7 +71,7 @@ class ManageDeceasedClient : AppCompatActivity() {
 
     //Fetch data in grave child realtime database
     private fun getUserData() {
-        databaseReference = FirebaseDatabase.getInstance().getReference("Deceased")
+        databaseReference = FirebaseDatabase.getInstance().getReference("grave")
 
         databaseReference.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -124,6 +123,7 @@ class ManageDeceasedClient : AppCompatActivity() {
     fun onClick(v: View) {
         val i: Intent = when (v.id) {
             R.id.addDeceasedCard -> Intent(this, AddDataClient::class.java)
+            R.id.updateDeceasedCard -> Intent(this, UpdateDelete::class.java)
             else -> return
         }
         startActivity(i)
