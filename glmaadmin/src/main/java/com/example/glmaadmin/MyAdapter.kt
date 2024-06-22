@@ -35,6 +35,7 @@ class MyAdapter(private var userList: ArrayList<Model>, private val context: Con
 
         holder.itemView.setOnClickListener{
             val intent = Intent(context, DeceasedInfo::class.java).apply {
+                putExtra("deceasedId", currentItem.deceasedId)
                 putExtra("deceasedName", currentItem.deceasedName)
                 putExtra("birthDate", currentItem.birthDate)
                 putExtra("deathDate", currentItem.deathDate)
@@ -46,11 +47,11 @@ class MyAdapter(private var userList: ArrayList<Model>, private val context: Con
     }
 
     inner class MyViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val txtDeceaseName: TextView = itemView.findViewById(R.id.deceasedNameList)
-        private val txtLotAddress: TextView = itemView.findViewById(R.id.lotNumberList)
-        private val txtDeathDate: TextView = itemView.findViewById(R.id.deathDateList)
-        private val txtBirthDate: TextView = itemView.findViewById(R.id.birthDateList)
-        private val imageView: ImageView = itemView.findViewById(R.id.graveImageList)
+        val txtDeceaseName: TextView = itemView.findViewById(R.id.deceasedNameList)
+        val txtLotAddress: TextView = itemView.findViewById(R.id.lotNumberList)
+        val txtDeathDate: TextView = itemView.findViewById(R.id.deathDateList)
+        val txtBirthDate: TextView = itemView.findViewById(R.id.birthDateList)
+        val imageView: ImageView = itemView.findViewById(R.id.graveImageList)
 
         fun bind(model: Model) {
             txtDeceaseName.text = model.deceasedName

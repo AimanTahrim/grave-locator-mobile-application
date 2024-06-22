@@ -30,13 +30,6 @@
             android:textSize="20sp"
             android:textStyle="bold" />
 
-        <ImageView
-            android:id="@+id/btndelete"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:src="@drawable/ic_delete2"
-            android:layout_marginStart="100dp"
-            tools:ignore="ContentDescription" />
     </LinearLayout>
 
     <ScrollView
@@ -272,13 +265,14 @@
                 app:cornerRadius="10dp" />
 
             <Button
-                android:id="@+id/navigateButton"
+                android:id="@+id/deleteButton"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:layout_gravity="center"
                 android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
                 android:background="@drawable/btn_greenbg"
-                android:text="Navigate"
+                android:text="Delete"
                 android:textColor="@color/greyYellow"
                 android:textSize="18sp"
                 app:cornerRadius="10dp" />

@@ -113,10 +113,8 @@ class ManageDeceasedAdmin : AppCompatActivity() {
     // Called when a CardView is clicked
     fun onClick(v: View) {
         val i: Intent = when (v.id) {
-            R.id.SubmitDeceasedCard -> Intent(this, AdminReviewActivity::class.java)
-            R.id.UpdateDeceasedCard -> Intent(this, AdminUpdateReviewActivity::class.java)
-            R.id.DeleteDeceasedCard -> Intent(this, AdminDeleteRequestsActivity::class.java)
-            R.id.ADDDeceasedCard -> Intent(this, AddDataAdmin::class.java)
+            R.id.UserPendingCard -> Intent(this, UserPendingData::class.java)
+            R.id.AddDeceasedCard -> Intent(this, AddDataAdmin::class.java)
             else -> return
         }
         startActivity(i)

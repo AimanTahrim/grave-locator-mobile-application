@@ -12,14 +12,15 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.example.glmaclient.persistentcloudanchor.databinding.ActivityUpdateDataClientBinding
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.*
 import com.google.firebase.storage.FirebaseStorage
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 import java.util.UUID
 import android.util.Log
+import android.widget.ImageView
+import com.bumptech.glide.Glide
 
 class UpdateDataClient : AppCompatActivity() {
 
@@ -28,6 +29,7 @@ class UpdateDataClient : AppCompatActivity() {
     private lateinit var binding: ActivityUpdateDataClientBinding
     private val calendar = Calendar.getInstance()
     private lateinit var pendingUpdatesRef: DatabaseReference
+    private lateinit var deceasedRef: DatabaseReference
 
     private var selectedImageUri: Uri? = null
 
@@ -36,9 +38,15 @@ class UpdateDataClient : AppCompatActivity() {
         binding = ActivityUpdateDataClientBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        val backArrow: ImageView = findViewById(R.id.backarrow)
+        backArrow.setOnClickListener {
+            finish()
+        }
+
         auth = FirebaseAuth.getInstance()
         db = FirebaseDatabase.getInstance()
         pendingUpdatesRef = db.reference.child("updatepending")
+        deceasedRef = db.reference.child("grave")
 
         val deceasedID = intent.getStringExtra("deceasedId")
         Log.d("UpdateDataClient", "Received deceasedID: $deceasedID") // Log the deceasedID
@@ -47,6 +55,8 @@ class UpdateDataClient : AppCompatActivity() {
             Toast.makeText(this, "Error: No Deceased ID provided", Toast.LENGTH_SHORT).show()
             finish()
             return
+        } else {
+            fetchData(deceasedID)
         }
 
         binding.editBirthDate.setOnClickListener {
@@ -64,6 +74,32 @@ class UpdateDataClient : AppCompatActivity() {
         binding.updateButtonClient.setOnClickListener {
             validateAndUpdateData(deceasedID)
         }
+    }
+
+    private fun fetchData(deceasedID: String) {
+        deceasedRef.child(deceasedID).addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val deceasedName = snapshot.child("deceasedName").value as? String
+                val birthDate = snapshot.child("birthDate").value as? String
+                val deathDate = snapshot.child("deathDate").value as? String
+                val lotNumber = snapshot.child("lotNumber").value as? String
+                val lotPhoto = snapshot.child("lotPhoto").value as? String
+
+                binding.editDeceasedName.setText(deceasedName)
+                binding.editBirthDate.text = birthDate
+                binding.editDeathDate.text = deathDate
+                binding.editLotNumber.setText(lotNumber)
+
+                lotPhoto?.let {
+                    val imageView = binding.selectedImageView
+                    Glide.with(this@UpdateDataClient).load(it).into(imageView)
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Toast.makeText(this@UpdateDataClient, "Failed to fetch data: ${error.message}", Toast.LENGTH_SHORT).show()
+            }
+        })
     }
 
     private fun showDatePickerDialog(dateTextView: TextView) {
@@ -99,7 +135,7 @@ class UpdateDataClient : AppCompatActivity() {
         val deathDate = binding.editDeathDate.text.toString()
         val lotNumber = binding.editLotNumber.text.toString()
 
-        if (deceasedName.isEmpty() || birthDate.isEmpty() || deathDate.isEmpty() || lotNumber.isEmpty()) {
+        if (deceasedName.isEmpty() || deathDate.isEmpty() || lotNumber.isEmpty()) {
             Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
             return
         }
@@ -164,6 +200,8 @@ class UpdateDataClient : AppCompatActivity() {
             progressDialog.dismiss()
             if (task.isSuccessful) {
                 Toast.makeText(this, "Update request submitted, pending admin approval.", Toast.LENGTH_SHORT).show()
+                val intent = Intent(this, ManageDeceasedClient::class.java)
+                startActivity(intent)
                 finish()
             } else {
                 Log.e("UpdateDataClient", "Database update failed", task.exception)
@@ -171,5 +209,4 @@ class UpdateDataClient : AppCompatActivity() {
             }
         }
     }
-
 }

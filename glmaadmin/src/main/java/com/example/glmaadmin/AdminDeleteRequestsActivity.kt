@@ -1,7 +1,9 @@
 package com.example.glmaadmin
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.widget.ImageView
 import android.widget.ListView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -17,6 +19,12 @@ class AdminDeleteRequestsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_admin_delete_requests)
+
+        val backArrow: ImageView = findViewById(R.id.backarrow)
+        backArrow.setOnClickListener {
+            val intent = Intent(this, UserPendingData::class.java)
+            startActivity(intent)
+        }
 
         deleteRequestsListView = findViewById(R.id.deleteRequestsListView)
         deleteRequests = ArrayList()

@@ -1,7 +1,6 @@
 package com.example.glmaadmin
 
 data class Model(
-    val id: String? = null,
     val deceasedId: String? =null,
     val deceasedName: String? = null,
     val birthDate: String? = null,

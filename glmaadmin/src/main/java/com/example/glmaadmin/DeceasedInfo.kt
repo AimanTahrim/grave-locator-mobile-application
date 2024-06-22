@@ -23,12 +23,12 @@ class DeceasedInfo : AppCompatActivity() {
             startActivity(intent)
         }
 
+        val deceasedId = intent.getStringExtra("deceasedId")
         val deceasedName = intent.getStringExtra("deceasedName")
         val birthDate = intent.getStringExtra("birthDate")
         val deathDate = intent.getStringExtra("deathDate")
         val lotNumber = intent.getStringExtra("lotNumber")
         val lotPhoto = intent.getStringExtra("lotPhoto")
-        val dataKey = intent.getStringExtra("dataKey")
 
         findViewById<TextView>(R.id.deceasedNameList).text = deceasedName
         findViewById<TextView>(R.id.birthDateList).text = birthDate
@@ -49,46 +49,37 @@ class DeceasedInfo : AppCompatActivity() {
                 putExtra("deathDate", deathDate)
                 putExtra("lotNumber", lotNumber)
                 putExtra("lotPhoto", lotPhoto)
-                putExtra("dataKey", dataKey)
+                putExtra("deceasedId", deceasedId)  // Pass the deceasedId to the Update activity
             }
             startActivity(intent)
         }
 
-        val btndelete: ImageView = findViewById(R.id.btndelete)
-        btndelete.setOnClickListener {
-            showDeleteConfirmationDialog(dataKey ?: "")
+        val deleteButton: Button = findViewById(R.id.deleteButton)
+        deleteButton.setOnClickListener {
+            AlertDialog.Builder(this)
+                .setTitle("Delete Entry")
+                .setMessage("Are you sure you want to delete this entry?")
+                .setPositiveButton("Yes") { dialog, which ->
+                    if (deceasedId != null) {
+                        deleteDeceased(deceasedId)
+                    } else {
+                        Toast.makeText(this, "Deceased ID is missing", Toast.LENGTH_SHORT).show()
+                    }
+                }
+                .setNegativeButton("No", null)
+                .show()
         }
     }
 
-    private fun showDeleteConfirmationDialog(dataKey: String) {
-        val builder = AlertDialog.Builder(this)
-        builder.setTitle("Confirm Delete")
-        builder.setMessage("Are you sure you want to delete this record?")
-
-        builder.setPositiveButton("Yes") { dialogInterface: DialogInterface, _: Int ->
-            dialogInterface.dismiss()
-            deleteDeceasedData(dataKey)
-        }
-
-        builder.setNegativeButton("No") { dialogInterface: DialogInterface, _: Int ->
-            dialogInterface.dismiss()
-        }
-
-        val alertDialog: AlertDialog = builder.create()
-        alertDialog.show()
-    }
-
-    private fun deleteDeceasedData(dataKey: String) {
-        val databaseRef = FirebaseDatabase.getInstance().getReference("approved").child(dataKey)
-        databaseRef.removeValue()
-            .addOnSuccessListener {
-                Toast.makeText(this, "Record deleted successfully", Toast.LENGTH_SHORT).show()
-                val intent = Intent(this, ManageDeceasedAdmin::class.java)
-                startActivity(intent)
+    private fun deleteDeceased(deceasedId: String) {
+        val databaseReference = FirebaseDatabase.getInstance().getReference("grave").child(deceasedId)
+        databaseReference.removeValue().addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                Toast.makeText(this, "Entry deleted successfully", Toast.LENGTH_SHORT).show()
                 finish()
+            } else {
+                Toast.makeText(this, "Failed to delete entry: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
             }
-            .addOnFailureListener {
-                Toast.makeText(this, "Failed to delete record", Toast.LENGTH_SHORT).show()
-            }
+        }
     }
 }

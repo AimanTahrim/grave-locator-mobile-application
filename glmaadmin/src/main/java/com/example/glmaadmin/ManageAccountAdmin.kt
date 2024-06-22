@@ -11,10 +11,12 @@ import android.provider.MediaStore
 import android.text.InputType
 import android.widget.EditText
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
 import com.example.glmaadmin.databinding.ActivityManageAccountAdminBinding
+import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
@@ -150,22 +152,52 @@ class ManageAccountAdmin : AppCompatActivity() {
         val builder = AlertDialog.Builder(this)
         builder.setTitle("Change Password")
 
-        val input = EditText(this)
-        input.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
-        builder.setView(input)
+        val layout = LinearLayout(this)
+        layout.orientation = LinearLayout.VERTICAL
+        layout.setPadding(16, 16, 16, 16)
+
+        val currentPasswordInput = EditText(this)
+        currentPasswordInput.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+        currentPasswordInput.hint = "Current Password"
+        layout.addView(currentPasswordInput)
+
+        val newPasswordInput = EditText(this)
+        newPasswordInput.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+        newPasswordInput.hint = "New Password"
+        layout.addView(newPasswordInput)
+
+        builder.setView(layout)
 
         builder.setPositiveButton("Change") { dialog, _ ->
-            val newPassword = input.text.toString()
-            if (newPassword.isNotEmpty()) {
-                changeUserPassword(newPassword)
+            val currentPassword = currentPasswordInput.text.toString()
+            val newPassword = newPasswordInput.text.toString()
+
+            if (currentPassword.isNotEmpty() && newPassword.isNotEmpty()) {
+                reAuthenticateUser(currentPassword, newPassword)
             } else {
-                Toast.makeText(this, "Password cannot be empty", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
             }
-            dialog.dismiss()
         }
         builder.setNegativeButton("Cancel") { dialog, _ -> dialog.cancel() }
 
         builder.show()
+    }
+
+    private fun reAuthenticateUser(currentPassword: String, newPassword: String) {
+        val user = firebaseAuth.currentUser
+        val email = user?.email
+
+        if (email != null && currentPassword.isNotEmpty()) {
+            val credential = EmailAuthProvider.getCredential(email, currentPassword)
+
+            user.reauthenticate(credential).addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    changeUserPassword(newPassword)
+                } else {
+                    Toast.makeText(this, "Re-authentication failed: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
     }
 
     private fun changeUserPassword(newPassword: String) {
@@ -181,11 +213,24 @@ class ManageAccountAdmin : AppCompatActivity() {
     }
 
     private fun logoutUser() {
-        firebaseAuth.signOut()
-        val intent = Intent(this, LoginAdmin::class.java)
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
-        startActivity(intent)
-        finish()
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Logout")
+        builder.setMessage("Are you sure you want to log out?")
+
+        builder.setPositiveButton("Yes") { dialog, _ ->
+            firebaseAuth.signOut()
+            val intent = Intent(this, LoginAdmin::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+            startActivity(intent)
+            finish()
+            dialog.dismiss()
+        }
+
+        builder.setNegativeButton("No") { dialog, _ ->
+            dialog.dismiss()
+        }
+
+        builder.show()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

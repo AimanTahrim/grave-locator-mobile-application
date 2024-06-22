@@ -21,6 +21,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.GLMAClient">
         <activity
+            android:name=".UserPendingData"
+            android:exported="false" />
+        <activity
             android:name=".AdminDeleteRequestsActivity"
             android:exported="false" />
         <activity

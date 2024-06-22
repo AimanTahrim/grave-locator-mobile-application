@@ -4,13 +4,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/greenwhite_bg"
+    android:background="@drawable/green_bg"
     tools:context=".LoginClient">
 
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:orientation="vertical">
 
 
@@ -36,91 +36,90 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
+            android:layout_height="match_parent"
             android:layout_marginTop="20dp"
+            android:background="@color/greyYellow"
+            android:orientation="vertical"
             android:padding="20dp">
 
             <TextView
+                android:id="@+id/SignInText1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/SignInText1"
                 android:text="Sign In"
+                android:textColor="@color/darkGreen"
                 android:textSize="30sp"
-                android:textStyle="bold"
-                android:textColor="@color/darkGreen"/>
+                android:textStyle="bold" />
 
             <TextView
+                android:id="@+id/SignInText2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                android:id="@+id/SignInText2"
                 android:text="Please login to your account."
-                android:textSize="16sp"
-                android:textColor="@color/darkGreen"/>
+                android:textColor="@color/darkGreen"
+                android:textSize="16sp" />
 
             <EditText
+                android:id="@+id/SignInEmail"
                 android:layout_width="350dp"
                 android:layout_height="60dp"
-                android:id="@+id/SignInEmail"
-                android:layout_marginTop="20dp"
                 android:layout_gravity="center"
+                android:layout_marginTop="20dp"
                 android:background="@drawable/green_border"
-                android:padding="8dp"
-                android:hint="Enter Email"
                 android:drawableLeft="@drawable/baseline_email_24"
                 android:drawablePadding="8dp"
-                android:textColor="@color/darkGreen"/>
+                android:hint="Enter Email"
+                android:padding="8dp"
+                android:textColor="@color/darkGreen" />
 
             <EditText
+                android:id="@+id/SignInPassword"
                 android:layout_width="350dp"
                 android:layout_height="60dp"
-                android:id="@+id/SignInPassword"
-                android:layout_marginTop="20dp"
                 android:layout_gravity="center"
+                android:layout_marginTop="20dp"
                 android:background="@drawable/green_border"
-                android:padding="8dp"
-                android:hint="Enter Password"
-                android:inputType="textPassword"
                 android:drawableLeft="@drawable/baseline_lock_24"
                 android:drawablePadding="8dp"
-                android:textColor="@color/darkGreen"/>
+                android:hint="Enter Password"
+                android:inputType="textPassword"
+                android:padding="8dp"
+                android:textColor="@color/darkGreen" />
 
             <TextView
+                android:id="@+id/ForgotPasswordRedirectLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="end"
                 android:layout_marginTop="5dp"
                 android:padding="8dp"
-                android:id="@+id/ForgotPasswordRedirectLabel"
                 android:text="Forgot Password?"
-                android:textSize="18sp"
                 android:textColor="@color/darkGreen"
-                android:layout_gravity="end"/>
+                android:textSize="18sp" />
 
             <Button
+                android:id="@+id/SignInButton"
                 android:layout_width="200dp"
                 android:layout_height="50dp"
-                android:layout_marginTop="10dp"
                 android:layout_gravity="center"
-                android:text="Sign In"
-                android:id="@+id/SignInButton"
-                android:textSize="18sp"
+                android:layout_marginTop="10dp"
                 android:background="@drawable/btn_greenbg"
+                android:text="Sign In"
                 android:textColor="@color/greyYellow"
-                app:cornerRadius="10dp"/>
+                android:textSize="18sp"
+                app:cornerRadius="10dp" />
 
             <TextView
+                android:id="@+id/SignUpRedirectText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
                 android:layout_gravity="center"
+                android:layout_marginTop="5dp"
                 android:padding="8dp"
-                android:id="@+id/SignUpRedirectText"
                 android:text="Don’t have an account? Sign Up"
-                android:textSize="18sp"
-                android:textColor="@color/darkGreen"/>
-
-
+                android:textColor="@color/darkGreen"
+                android:textSize="18sp" />
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>

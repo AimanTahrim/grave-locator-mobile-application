@@ -131,7 +131,7 @@ class AddDataAdmin : AppCompatActivity() {
     }
 
     private fun checkIfLotNumberExists(deceasedNameAdmin: String, birthDateAdmin: String, deathDateAdmin: String, lotNumberAdmin: String) {
-        databaseReference.child("approved").orderByChild("lotNumber").equalTo(lotNumberAdmin)
+        databaseReference.child("grave").orderByChild("lotNumber").equalTo(lotNumberAdmin)
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     if (snapshot.exists()) {
@@ -186,7 +186,7 @@ class AddDataAdmin : AppCompatActivity() {
 
     private fun uploadImageToStorage(deceasedNameAdmin: String, birthDateAdmin: String, deathDateAdmin: String, lotNumberAdmin: String, imageUri: Uri) {
         val storageRef = storage.reference
-        val imagesRef = storageRef.child("images")
+        val imagesRef = storageRef.child("grave_images")
         val imageFileName = "${System.currentTimeMillis()}.jpg"
         val imageFileRef = imagesRef.child(imageFileName)
         val uploadTask = imageFileRef.putFile(imageUri)
@@ -214,7 +214,11 @@ class AddDataAdmin : AppCompatActivity() {
             return
         }
 
+        val newDeceasedRef = databaseReference.child("grave").push()
+        val deceasedId = newDeceasedRef.key ?: return
+
         val data = mapOf(
+            "deceasedId" to deceasedId,
             "deceasedName" to deceasedNameAdmin,
             "birthDate" to birthDateAdmin,
             "deathDate" to deathDateAdmin,
@@ -226,8 +230,7 @@ class AddDataAdmin : AppCompatActivity() {
 
         Log.d("AddDataAdmin", "Saving data to Realtime Database: userId=$userId, data=$data")
 
-        databaseReference.child("approved").push()
-            .setValue(data)
+        newDeceasedRef.setValue(data)
             .addOnSuccessListener {
                 progressDialog.dismiss()
                 Toast.makeText(this, "Data submitted successfully", Toast.LENGTH_SHORT).show()
@@ -239,4 +242,5 @@ class AddDataAdmin : AppCompatActivity() {
                 Toast.makeText(this, "Failed to submit data", Toast.LENGTH_SHORT).show()
             }
     }
+
 }

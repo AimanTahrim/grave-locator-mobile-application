@@ -20,7 +20,7 @@ class AdminReviewActivity : AppCompatActivity() {
 
         val backArrow: ImageView = findViewById(R.id.backarrow)
         backArrow.setOnClickListener {
-            val intent = Intent(this, ManageDeceasedAdmin::class.java)
+            val intent = Intent(this, UserPendingData::class.java)
             startActivity(intent)
         }
 

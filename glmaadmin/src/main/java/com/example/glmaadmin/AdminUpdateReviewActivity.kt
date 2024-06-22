@@ -22,7 +22,7 @@ class AdminUpdateReviewActivity : AppCompatActivity() {
 
         val backArrow: ImageView = findViewById(R.id.backarrow)
         backArrow.setOnClickListener {
-            val intent = Intent(this, HomePageAdmin::class.java)
+            val intent = Intent(this, UserPendingData::class.java)
             startActivity(intent)
         }
 

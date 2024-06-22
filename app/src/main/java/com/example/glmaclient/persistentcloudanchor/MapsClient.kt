@@ -1,6 +1,7 @@
 package com.example.glmaclient.persistentcloudanchor
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Bundle
@@ -11,7 +12,6 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
-import com.example.glmaclient.persistentcloudanchor.R
 import com.example.glmaclient.persistentcloudanchor.databinding.FragmentMapsClientBinding
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -21,6 +21,7 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class MapsClient : Fragment() {
 
@@ -50,6 +51,14 @@ class MapsClient : Fragment() {
         mapFragment?.getMapAsync(callback)
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireActivity())
+
+        // Initialize FAB and set its click listener
+        val fab: FloatingActionButton = requireActivity().findViewById(R.id.fab)
+        fab.setOnClickListener {
+            // Replace with the target activity
+            val intent = Intent(requireContext(), NavigationAr::class.java)
+            startActivity(intent)
+        }
     }
 
     private fun getCurrentLocationUser() {
@@ -90,9 +99,7 @@ class MapsClient : Fragment() {
     }
 
     override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
+        requestCode: Int, permissions: Array<out String>, grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == permissionCode && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {

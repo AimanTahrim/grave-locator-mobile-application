@@ -8,7 +8,7 @@ import com.google.firebase.auth.FirebaseAuth
 class AdminLoginViewModel : ViewModel() {
 
     private val firebaseAuth = FirebaseAuth.getInstance()
-    val adminEmail = "admin01@gmail.com"
+    val adminEmail = "glma00@gmail.com"
 
     private val _progress = MutableLiveData<Boolean>()
     val progress: LiveData<Boolean> get() = _progress

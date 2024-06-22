@@ -14,6 +14,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
 import com.example.glmaadmin.databinding.ActivityUpdateDeceasedAdminBinding
@@ -21,6 +22,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import com.google.firebase.storage.FirebaseStorage
 import java.util.Calendar
+import java.util.UUID
 
 class UpdateDeceasedAdmin : AppCompatActivity() {
 
@@ -63,19 +65,73 @@ class UpdateDeceasedAdmin : AppCompatActivity() {
 
         binding.submitButtonClient.setOnClickListener {
             Log.d("UpdateDeceasedAdmin", "Submit button clicked")
+            val deceasedId = intent.getStringExtra("deceasedId")
             val deceasedName = binding.editDeceasedName.text.toString()
-            val birthDate = binding.editBirthDate.text.toString()
+            val birthDate = binding.editBirthDate.text.toString() // birthDate is now optional
             val deathDate = binding.editDeathDate.text.toString()
             val lotNumber = binding.editLotNumber.text.toString()
 
-            if (deceasedName.isNotEmpty() && birthDate.isNotEmpty() && deathDate.isNotEmpty() && lotNumber.isNotEmpty()) {
-                updateDeceasedData(deceasedName, birthDate, deathDate, lotNumber)
+            if (deceasedName.isEmpty() || deathDate.isEmpty() || lotNumber.isEmpty()) {
+                Toast.makeText(this, "Please fill in all required fields", Toast.LENGTH_SHORT).show()
+            } else if (deceasedId == null) {
+                Log.e("UpdateDeceasedAdmin", "Deceased ID is missing")
+                Toast.makeText(this, "Deceased ID is missing", Toast.LENGTH_SHORT).show()
             } else {
-                Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
+                // Show confirmation dialog
+                AlertDialog.Builder(this).apply {
+                    setTitle("Confirm Update")
+                    setMessage("Are you sure you want to update this data?")
+                    setPositiveButton("Yes") { _, _ ->
+                        Log.d("UpdateDeceasedAdmin", "Updating data with deceasedId: $deceasedId")
+                        progressDialog.show()
+                        if (selectedImageUri != null) {
+                            uploadImageAndSaveData(deceasedId, deceasedName, birthDate, deathDate, lotNumber)
+                        } else {
+                            saveDataToFirebase(deceasedId, deceasedName, birthDate, deathDate, lotNumber, null)
+                        }
+                    }
+                    setNegativeButton("No") { dialog, _ ->
+                        dialog.dismiss()
+                    }
+                    create()
+                    show()
+                }
             }
         }
 
         populateFieldsForUpdate()
+    }
+
+    private fun showDatePickerDialog(dateTextView: TextView) {
+        val calendar = Calendar.getInstance()
+        val dateSetListener = DatePickerDialog.OnDateSetListener { _, year, month, dayOfMonth ->
+            calendar.set(Calendar.YEAR, year)
+            calendar.set(Calendar.MONTH, month)
+            calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth)
+            val date = "$dayOfMonth/${month + 1}/$year"
+            dateTextView.text = date
+        }
+        DatePickerDialog(this, dateSetListener, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)).show()
+    }
+
+    private fun selectImage() {
+        val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+        imagePickerLauncher.launch(intent)
+    }
+
+    private val imagePickerLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == RESULT_OK && result.data != null) {
+            selectedImageUri = result.data!!.data
+            selectedImageUri?.let {
+                val bitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    val source = ImageDecoder.createSource(contentResolver, it)
+                    ImageDecoder.decodeBitmap(source)
+                } else {
+                    MediaStore.Images.Media.getBitmap(contentResolver, it)
+                }
+                binding.selectedImageView.setImageBitmap(bitmap)
+            }
+        }
     }
 
     private fun populateFieldsForUpdate() {
@@ -84,12 +140,12 @@ class UpdateDeceasedAdmin : AppCompatActivity() {
         val deathDate = intent.getStringExtra("deathDate")
         val lotNumber = intent.getStringExtra("lotNumber")
         val lotPhoto = intent.getStringExtra("lotPhoto")
-        val dataKey = intent.getStringExtra("dataKey")
+        val deceasedId = intent.getStringExtra("deceasedId")
 
-        if (dataKey == null) {
-            Log.e("UpdateDeceasedAdmin", "Data key is missing in populateFieldsForUpdate")
+        if (deceasedId == null) {
+            Log.e("UpdateDeceasedAdmin", "Deceased ID is missing in populateFieldsForUpdate")
         } else {
-            Log.d("UpdateDeceasedAdmin", "Data key received: $dataKey")
+            Log.d("UpdateDeceasedAdmin", "Deceased ID received: $deceasedId")
         }
 
         binding.editDeceasedName.setText(deceasedName)
@@ -103,109 +159,50 @@ class UpdateDeceasedAdmin : AppCompatActivity() {
         }
     }
 
-    private fun showDatePickerDialog(textView: TextView) {
-        val calendar = Calendar.getInstance()
-        val year = calendar.get(Calendar.YEAR)
-        val month = calendar.get(Calendar.MONTH)
-        val day = calendar.get(Calendar.DAY_OF_MONTH)
+    private fun uploadImageAndSaveData(deceasedId: String, deceasedName: String, birthDate: String, deathDate: String, lotNumber: String) {
+        val storageRef = storage.reference.child("grave_images/${UUID.randomUUID()}.jpg")
+        val uploadTask = storageRef.putFile(selectedImageUri!!)
 
-        val datePickerDialog = DatePickerDialog(
-            this,
-            { _, selectedYear, selectedMonth, selectedDay ->
-                val selectedDate = "${selectedDay}/${selectedMonth + 1}/${selectedYear}"
-                textView.text = selectedDate
-            },
-            year,
-            month,
-            day
-        )
-        datePickerDialog.show()
-    }
-
-    private val selectImageResultLauncher = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        if (result.resultCode == RESULT_OK) {
-            result.data?.data?.let { uri ->
-                selectedImageUri = uri
-                displayImage(uri)
+        uploadTask.continueWithTask { task ->
+            if (!task.isSuccessful) {
+                task.exception?.let {
+                    throw it
+                }
+            }
+            storageRef.downloadUrl
+        }.addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                val downloadUri = task.result
+                saveDataToFirebase(deceasedId, deceasedName, birthDate, deathDate, lotNumber, downloadUri.toString())
+            } else {
+                progressDialog.dismiss()
+                Toast.makeText(this, "Image upload failed: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
             }
         }
     }
 
-    private fun selectImage() {
-        val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-        selectImageResultLauncher.launch(intent)
-    }
-
-    private fun displayImage(uri: Uri) {
-        val bitmap: Bitmap = if (Build.VERSION.SDK_INT < 28) {
-            MediaStore.Images.Media.getBitmap(this.contentResolver, uri)
-        } else {
-            val source = ImageDecoder.createSource(this.contentResolver, uri)
-            ImageDecoder.decodeBitmap(source)
-        }
-        binding.selectedImageView.setImageBitmap(bitmap)
-    }
-
-    private fun updateDeceasedData(deceasedName: String, birthDate: String, deathDate: String, lotNumber: String) {
-        val dataKey: String? = intent.getStringExtra("dataKey")
-        if (dataKey == null) {
-            Toast.makeText(this, "Error: Data key is missing", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        val updateData = hashMapOf<String, Any>(
+    private fun saveDataToFirebase(deceasedId: String, deceasedName: String, birthDate: String, deathDate: String, lotNumber: String, imageUrl: String?) {
+        val updates = hashMapOf<String, Any>(
             "deceasedName" to deceasedName,
-            "birthDate" to  birthDate,
+            "birthDate" to birthDate,
             "deathDate" to deathDate,
             "lotNumber" to lotNumber
         )
-
-        progressDialog.show()
-
-        if (selectedImageUri != null) {
-            uploadImageToStorage(deceasedName, birthDate, deathDate, lotNumber, dataKey)
-        } else {
-            updateDataInFirebase(dataKey, updateData)
+        imageUrl?.let {
+            updates["lotPhoto"] = it
         }
-    }
 
-    private fun uploadImageToStorage(deceasedName: String, birthDate: String, deathDate: String, lotNumber: String, dataKey: String) {
-        val storageRef = storage.reference
-        val imagesRef = storageRef.child("images")
-        val imageFileName = "${System.currentTimeMillis()}.jpg"
-        val imageFileRef = imagesRef.child(imageFileName)
-        val uploadTask = imageFileRef.putFile(selectedImageUri!!)
-
-        uploadTask.addOnSuccessListener { taskSnapshot ->
-            imageFileRef.downloadUrl.addOnSuccessListener { uri ->
-                val updateData = hashMapOf<String, Any>(
-                    "deceasedName" to deceasedName,
-                    "birthDate" to birthDate,
-                    "deathDate" to deathDate,
-                    "lotNumber" to lotNumber,
-                    "lotPhoto" to uri.toString()
-                )
-                updateDataInFirebase(dataKey, updateData)
-            }
-        }.addOnFailureListener { e ->
-            progressDialog.dismiss()
-            Toast.makeText(this, "Failed to upload image: ${e.message}", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    private fun updateDataInFirebase(dataKey: String, updateData: Map<String, Any>) {
-        val ref = FirebaseDatabase.getInstance().reference.child("Deceased").child(dataKey)
-        ref.updateChildren(updateData).addOnCompleteListener { task ->
+        databaseReference.child("grave").child(deceasedId).updateChildren(updates).addOnCompleteListener { task ->
             progressDialog.dismiss()
             if (task.isSuccessful) {
                 Toast.makeText(this, "Data updated successfully", Toast.LENGTH_SHORT).show()
+                // Start intent to ManageDeceasedAdmin
+                val intent = Intent(this, ManageDeceasedAdmin::class.java)
+                startActivity(intent)
                 finish()
             } else {
-                Toast.makeText(this, "Failed to update data", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Failed to update data: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
             }
         }
     }
 }
-
