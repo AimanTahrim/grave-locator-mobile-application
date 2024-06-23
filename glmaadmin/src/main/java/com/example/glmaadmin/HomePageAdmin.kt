@@ -9,6 +9,7 @@ import android.view.View
 class HomePageAdmin : AppCompatActivity(), View.OnClickListener {
 
     private lateinit var manageDeceased: CardView
+    private lateinit var manageAnchor: CardView
     private lateinit var manageAccount: CardView
     private lateinit var feedback: CardView
 
@@ -17,10 +18,12 @@ class HomePageAdmin : AppCompatActivity(), View.OnClickListener {
         setContentView(R.layout.activity_home_page_admin)
 
         manageDeceased = findViewById(R.id.managedeceasedcard)
+        manageAnchor = findViewById(R.id.manageanchorcard)
         manageAccount = findViewById(R.id.manageaccountcard)
         feedback = findViewById(R.id.feedbackcard)
 
         manageDeceased.setOnClickListener(this)
+        manageAnchor.setOnClickListener(this)
         manageAccount.setOnClickListener(this)
         feedback.setOnClickListener(this)
     }
@@ -28,6 +31,7 @@ class HomePageAdmin : AppCompatActivity(), View.OnClickListener {
     override fun onClick(v: View) {
         val i: Intent = when (v.id) {
             R.id.managedeceasedcard -> Intent(this, ManageDeceasedAdmin::class.java)
+            R.id.manageanchorcard -> Intent(this, ManageAnchorActivity::class.java)
             R.id.manageaccountcard -> Intent(this, ManageAccountAdmin::class.java)
             R.id.feedbackcard -> Intent(this, ViewFeedbackAdmin::class.java)
             else -> return

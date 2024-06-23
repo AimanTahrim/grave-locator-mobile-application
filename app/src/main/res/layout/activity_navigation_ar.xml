@@ -44,7 +44,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        android:text="Place AR"
+        android:text="Place AR Marker"
         android:textSize="24sp"
         android:textStyle="bold"
         android:paddingTop="60dp"/>
@@ -56,7 +56,7 @@
         app:layout_constraintTop_toBottomOf="@+id/host_title"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        android:text="Scan your space to create a new AR accessible by others."
+        android:text="Scan grave to create a new AR marker accessible by others."
         android:gravity="center"
         android:textSize="20sp"
         android:padding="40dp"/>
@@ -89,7 +89,7 @@
         app:layout_constraintTop_toBottomOf="@+id/resolve_title"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        android:text="Find grave location"
+        android:text="Find grave location using lot number"
         android:gravity="center"
         android:textSize="20sp"
         android:padding="40dp"/>

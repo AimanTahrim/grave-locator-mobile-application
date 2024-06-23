@@ -21,6 +21,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.GLMAClient">
         <activity
+            android:name=".ManageAnchorActivity"
+            android:exported="false" />
+        <activity
             android:name=".UserPendingData"
             android:exported="false" />
         <activity
